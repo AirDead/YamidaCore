@@ -1,0 +1,12 @@
+name: YamidaCore
+main: dev.airdead.yamidacore.YamidaCore
+version: 1.0
+author: Yamida
+description: Core plugin for Yamida's server.
+api-version: 1.17
+
+commands:
+  menu:
+    description: Open the main menu.
+  modules:
+    description: Open the modules menu.
