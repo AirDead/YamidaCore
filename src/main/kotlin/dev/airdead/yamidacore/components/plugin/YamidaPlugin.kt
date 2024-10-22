@@ -1,33 +1,78 @@
 package dev.airdead.yamidacore.components.plugin
 
 import com.charleskorn.kaml.Yaml
-import dev.airdead.yamidacore.components.modules.Module
-import dev.airdead.yamidacore.modules.ModulesManager
+import dev.airdead.yamidacore.components.modules.PluginCommand
+import dev.airdead.yamidacore.components.modules.PluginListener
+import dev.airdead.yamidacore.components.modules.PluginService
+import dev.nikdekur.ndkore.koin.SimpleKoinContext
+import dev.nikdekur.ndkore.service.manager.KoinServicesManager
+import dev.nikdekur.ndkore.service.manager.ServicesManager
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
+import org.bukkit.event.HandlerList
 import org.bukkit.plugin.java.JavaPlugin
+import org.koin.environmentProperties
 import java.io.File
 
 abstract class YamidaPlugin : JavaPlugin() {
-    abstract val components: Collection<Module>
-    val modulesManager = ModulesManager(this)
+    abstract val components: Collection<PluginService>
+    lateinit var servicesManager: ServicesManager
     val scheduler = Scheduler(this)
+
+    val staticComponents = mutableListOf<PluginService>()
+    val toggleableComponents = mutableListOf<PluginService>()
 
     override fun onEnable() {
         whenEnable()
-        components.forEach {
-            modulesManager.registerModule(it)
+        koinContext.startKoin {
+            environmentProperties()
         }
-        modulesManager.enableAll()
+        servicesManager = KoinServicesManager(koinContext)
+        runBlocking {
+            components.forEach { component ->
+                servicesManager.registerService(component, component.bindClass)
+
+                when (component) {
+                    is PluginCommand -> {
+                        getCommand(component.commandName)?.apply {
+                            setExecutor(component)
+                            tabCompleter = component
+                        }
+                    }
+                    is PluginListener -> {
+                        server.pluginManager.registerEvents(component, this@YamidaPlugin)
+                    }
+                }
+
+                if (component.toggleable) {
+                    toggleableComponents.add(component)
+                } else {
+                    staticComponents.add(component)
+                }
+            }
+            servicesManager.enable()
+        }
     }
 
     override fun onDisable() {
         whenDisable()
-        components.forEach {
-            it.onDisable()
+
+        components.filterIsInstance<PluginCommand>().forEach { command ->
+            getCommand(command.commandName)?.apply {
+                setExecutor(null)
+                tabCompleter = null
+            }
         }
-        modulesManager.disableAll()
+
+        components.filterIsInstance<PluginListener>().forEach { listener ->
+            HandlerList.unregisterAll(listener)
+        }
+
+        runBlocking {
+            servicesManager.disable()
+        }
     }
 
     abstract fun whenEnable()
@@ -63,7 +108,6 @@ abstract class YamidaPlugin : JavaPlugin() {
         return Yaml.default.decodeFromString(serializer, file.readText())
     }
 
-
     @OptIn(InternalSerializationApi::class)
     fun saveConfig(configName: String, config: Any, folder: File? = null) {
         val configFileName = if (!configName.endsWith(".yml")) "$configName.yml" else configName
@@ -82,10 +126,13 @@ abstract class YamidaPlugin : JavaPlugin() {
         }
     }
 
-}
+    inline fun <reified T : Any> loadConfig(
+        configName: String,
+        requireFilled: Boolean = false,
+        folder: File? = null
+    ): T = loadConfig(configName, T::class.java, requireFilled, folder)
 
-inline fun <reified T : Any> YamidaPlugin.loadConfig(
-    configName: String,
-    requireFilled: Boolean = false,
-    folder: File? = null
-): T = loadConfig(configName, T::class.java, requireFilled, folder)
+    companion object {
+        val koinContext = SimpleKoinContext()
+    }
+}

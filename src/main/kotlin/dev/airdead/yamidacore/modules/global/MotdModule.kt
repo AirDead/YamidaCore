@@ -1,9 +1,7 @@
 package dev.airdead.yamidacore.modules.global
 
-import dev.airdead.yamidacore.components.modules.ModuleState
-import dev.airdead.yamidacore.components.modules.listeners.ListenerModule
+import dev.airdead.yamidacore.components.modules.PluginListener
 import dev.airdead.yamidacore.components.plugin.YamidaPlugin
-import dev.airdead.yamidacore.components.plugin.loadConfig
 import kotlinx.serialization.Serializable
 import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.event.EventHandler
@@ -16,20 +14,33 @@ data class MotdConfig(
     val motd: List<String> = listOf("Добро пожаловать на сервер!")
 )
 
-class MOTDModule(override val app: YamidaPlugin) : ListenerModule {
+class MOTDModule(override val app: YamidaPlugin) : PluginListener() {
     override val moduleName = "MOTD"
-    override var status = ModuleState.DISABLED
     override val toggleable = true
 
     lateinit var motdTimer: BukkitTask
     var serverName = ""
     var currentMOTD = ""
 
+    override suspend fun onEnable() {
+        loadConfigAndStartTimer()
+    }
 
-    override fun onEnable() {
+    override suspend fun onDisable() {
+        motdTimer.cancel()
+        serverName = ""
+        currentMOTD = ""
+    }
+
+    override suspend fun onReload() {
+        motdTimer.cancel()
+        loadConfigAndStartTimer()
+    }
+
+    fun loadConfigAndStartTimer() {
         val config = app.loadConfig<MotdConfig>("motd")
-
         currentMOTD = config.motd.random()
+        serverName = config.name
 
         motdTimer = app.scheduler.runAsyncTaskTimer(0, 20 * 60) {
             val motd = config.motd.random()
@@ -40,18 +51,9 @@ class MOTDModule(override val app: YamidaPlugin) : ListenerModule {
         }
     }
 
-
-    override fun onDisable() {
-        motdTimer.cancel()
-    }
-
     @EventHandler
     fun onServerListPing(event: ServerListPingEvent) {
         val miniMessage = MiniMessage.miniMessage()
-
-        event.motd(miniMessage.deserialize("""
-            $serverName
-            $currentMOTD
-        """.trimIndent()))
+        event.motd(miniMessage.deserialize("$serverName\n$currentMOTD"))
     }
 }

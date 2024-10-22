@@ -34,7 +34,7 @@ fun Player.sendCustomMessage(
 
         val updatedComponent = when (button.position) {
             ButtonPosition.BEFORE -> buttonComponent.append(messagePart)
-            ButtonPosition.AFTER -> messagePart.append(buttonComponent)
+            ButtonPosition.AFTER -> messagePart.append(" ".toComponent()).append(buttonComponent)
             ButtonPosition.INLINE -> messagePart.append(Component.space()).append(buttonComponent)
             ButtonPosition.ABOVE -> Component.text("\n").append(buttonComponent).append(messagePart)
             ButtonPosition.BELOW -> messagePart.append(Component.text("\n")).append(buttonComponent)
