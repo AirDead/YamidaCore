@@ -1,0 +1,22 @@
+[versions]
+kotlin = "2.0.20"
+shadow = "8.1.1"
+paper = "1.21.1-R0.1-SNAPSHOT"
+kaml = "0.61.0"
+ndkore = "1.4.4"
+kotlinxSerialization = "1.6.0"
+invui = "1.38"
+
+[libraries]
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlin-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
+paper-api = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
+kaml = { module = "com.charleskorn.kaml:kaml", version.ref = "kaml" }
+ndkore = { module = "dev.nikdekur:ndkore", version.ref = "ndkore" }
+invui-kotlin = { module = "xyz.xenondevs.invui:invui-kotlin", version.ref = "invui" }
+invui = { module = "xyz.xenondevs.invui:invui", version.ref = "invui" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }

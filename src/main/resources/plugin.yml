@@ -6,7 +6,10 @@ description: Core plugin for Yamida's server.
 api-version: 1.17
 
 commands:
-  menu:
-    description: Open the main menu.
   modules:
-    description: Open the modules menu.
+    description: Change modules settings.
+  inspect:
+    description: Inspect a player.
+    aliases:
+      - ispect
+      - whois

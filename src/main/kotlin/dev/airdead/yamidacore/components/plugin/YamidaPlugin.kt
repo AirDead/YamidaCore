@@ -21,8 +21,6 @@ abstract class YamidaPlugin : JavaPlugin() {
     lateinit var servicesManager: ServicesManager
     val scheduler = Scheduler(this)
 
-    val staticComponents = mutableListOf<PluginService>()
-    val toggleableComponents = mutableListOf<PluginService>()
 
     override fun onEnable() {
         whenEnable()
@@ -44,12 +42,6 @@ abstract class YamidaPlugin : JavaPlugin() {
                     is PluginListener -> {
                         server.pluginManager.registerEvents(component, this@YamidaPlugin)
                     }
-                }
-
-                if (component.toggleable) {
-                    toggleableComponents.add(component)
-                } else {
-                    staticComponents.add(component)
                 }
             }
             servicesManager.enable()

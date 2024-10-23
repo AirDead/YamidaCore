@@ -1,7 +1,7 @@
 plugins {
-    kotlin("jvm") version "2.0.20"
-    kotlin("plugin.serialization") version "2.0.20"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.shadow)
 }
 
 group = "dev.airdead"
@@ -16,17 +16,30 @@ repositories {
         name = "ndkRepoReleases"
         url = uri("https://repo.nikdekur.tech/releases")
     }
+    maven("https://repo.xenondevs.xyz/releases")
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-    implementation("com.charleskorn.kaml:kaml:0.61.0")
-    implementation("dev.nikdekur:ndkore:1.4.4")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.20")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.0")
+    compileOnly(libs.paper.api)
+    implementation(libs.kaml)
+    implementation(libs.ndkore)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.kotlin.serialization)
+    implementation(libs.invui)
+    implementation(libs.invui.kotlin)
 }
-
 
 kotlin {
     jvmToolchain(21)
+}
+
+tasks.jar {
+    manifest {
+        attributes["paperweight-mappings-namespace"] = "spigot"
+    }
+}
+tasks.shadowJar {
+    manifest {
+        attributes["paperweight-mappings-namespace"] = "spigot"
+    }
 }
