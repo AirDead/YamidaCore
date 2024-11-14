@@ -3,7 +3,7 @@ kotlin = "2.0.20"
 shadow = "8.1.1"
 paper = "1.21.1-R0.1-SNAPSHOT"
 kaml = "0.61.0"
-ndkore = "1.4.4"
+ndkore = "1.4.5"
 kotlinxSerialization = "1.6.0"
 invui = "1.38"
 

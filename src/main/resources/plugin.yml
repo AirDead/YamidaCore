@@ -6,10 +6,14 @@ description: Core plugin for Yamida's server.
 api-version: 1.17
 
 commands:
-  modules:
-    description: Change modules settings.
-  inspect:
-    description: Inspect a player.
+  try:
+    description: Try a action.
+  pm:
+    description: "Отправить личное сообщение игроку"
+    usage: "/pm <ник> <сообщение>"
+    aliases: []
+  reply:
+    description: "Ответить на личное сообщение"
+    usage: "/reply <сообщение>"
     aliases:
-      - ispect
-      - whois
+        - r
