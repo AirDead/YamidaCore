@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.HoverEvent
 import net.kyori.adventure.text.minimessage.MiniMessage
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 
 enum class ButtonPosition(val isSpaced: Boolean = false) {
@@ -62,3 +63,6 @@ data class ButtonData(
     val separator: String = "",
     val position: ButtonPosition = ButtonPosition.INLINE
 )
+
+
+fun online() = Bukkit.getOnlinePlayers().map { it.name }
